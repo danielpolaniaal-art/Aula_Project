@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{# productos/templates/productos/producto_list.html #}
+{# El motor de plantillas de Django (DTL) solo permite lógica MUY limitada #}
+{# ({% for %}, {% if %}) a propósito: obliga a que TODA la lógica de #}
+{# negocio viva en views.py, no mezclada con el HTML. Eso facilita que #}
+{# diseñadores/junior toquen el template sin riesgo de romper reglas de negocio. #}
+
+{% block content %}
+<h1>Catálogo de Productos - SST Magnus</h1>
+
+{# Mensajes de éxito/error definidos en views.py con el framework 'messages' #}
+{% if messages %}
+  <ul class="mensajes">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<a href="{% url 'producto_create' %}" class="btn-nuevo">+ Nuevo producto</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Precio</th>
+      <th>Stock</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {# 'for' itera sobre el objeto Page que entrega el Paginator #}
+    {% for producto in productos %}
+      <tr>
+        <td>{{ producto.nombre }}</td>
+        {# truncatewords/truncatechars evita romper el layout con textos largos #}
+        <td>{{ producto.descripcion|truncatechars:60 }}</td>
+        {# el filtro 'floatformat' da formato consistente a los decimales #}
+        <td>${{ producto.precio|floatformat:2 }}</td>
+        <td>{{ producto.cantidad_stock }}</td>
+        <td>
+          <a href="{% url 'producto_update' producto.pk %}">Editar</a>
+          |
+          <a href="{% url 'producto_delete' producto.pk %}">Eliminar</a>
+        </td>
+      </tr>
+    {% empty %}
+      {# {% empty %} evita tener que validar 'if len(productos) == 0' en la vista #}
+      <tr>
+        <td colspan="5">Aún no hay productos registrados.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{# Controles de paginación #}
+{% if productos.has_other_pages %}
+  <div class="paginacion">
+    {% if productos.has_previous %}
+      <a href="?page={{ productos.previous_page_number }}">&laquo; Anterior</a>
+    {% endif %}
+    <span>Página {{ productos.number }} de {{ productos.paginator.num_pages }}</span>
+    {% if productos.has_next %}
+      <a href="?page={{ productos.next_page_number }}">Siguiente &raquo;</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

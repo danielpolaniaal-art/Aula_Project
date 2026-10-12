@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{# productos/templates/productos/producto_confirm_delete.html #}
+{# Pantalla intermedia obligatoria: nunca se borra nada en el mismo #}
+{# clic/GET que muestra la intención. El usuario debe confirmar con un #}
+{# POST explícito (ver botón abajo), evitando eliminaciones accidentales. #}
+
+{% block content %}
+<h1>Confirmar eliminación</h1>
+
+<p>
+  ¿Seguro que deseas eliminar el producto
+  <strong>"{{ producto.nombre }}"</strong>?
+  Esta acción lo ocultará del catálogo (no se pierde el registro histórico).
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn-peligro">Sí, eliminar</button>
+  <a href="{% url 'producto_list' %}">Cancelar</a>
+</form>
+{% endblock %}

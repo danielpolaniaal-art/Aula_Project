@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{# productos/templates/productos/producto_form.html #}
+{# Este MISMO template sirve para CREATE y UPDATE: la vista decide si #}
+{# el 'form' llega vacío (crear) o precargado con 'instance' (editar). #}
+{# Evitar duplicar este HTML es una decisión de mantenibilidad clave. #}
+
+{% block content %}
+<h1>{{ titulo }}</h1>
+
+{% if messages %}
+  <ul class="mensajes">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{# method="post" es obligatorio: GET nunca debe modificar datos #}
+<form method="post" novalidate>
+  {# {% csrf_token %} es OBLIGATORIO en todo formulario POST de Django. #}
+  {# Sin esto, el servidor rechaza la petición (error 403) porque protege #}
+  {# contra ataques CSRF (Cross-Site Request Forgery): evita que un sitio #}
+  {# malicioso externo envíe formularios en nombre de un usuario logueado. #}
+  {% csrf_token %}
+
+  {% for campo in form %}
+    <div class="campo-form">
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+      {{ campo }}
+      {# Los errores de validación de ProductoForm/Producto se muestran #}
+      {# automáticamente junto a cada campo, sin lógica extra en la vista. #}
+      {% if campo.errors %}
+        <ul class="errores-campo">
+          {% for error in campo.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <button type="submit">Guardar</button>
+  <a href="{% url 'producto_list' %}">Cancelar</a>
+</form>
+{% endblock %}
